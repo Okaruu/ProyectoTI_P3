@@ -16,6 +16,8 @@ import com.example.ProyectoTI.DTO.TipoEmpleadoDTO;
 import com.example.ProyectoTI.model.TipoEmpleado;
 import com.example.ProyectoTI.repository.TipoEmpleadoRepository;
 
+import net.datafaker.Faker;
+
 @SpringBootTest
 public class TipoEmpleadoServiceTest {
 
@@ -25,8 +27,14 @@ public class TipoEmpleadoServiceTest {
     @MockitoBean
     private TipoEmpleadoRepository tipoEmpleadoRepository;
 
+    private static final Faker faker = new Faker();
+
     private TipoEmpleado createTipoEmpleado(){
-        return new TipoEmpleado(1, "Vendedor", "Full Time", 600000.0);
+        return new TipoEmpleado(1,
+            faker.job().title(),
+            faker.options().option("Full Time", "Part Time", "Por Turnos"),
+            faker.number().randomDouble(2, 400000, 1200000)
+        );
     }
 
     @Test
@@ -39,10 +47,11 @@ public class TipoEmpleadoServiceTest {
 
     @Test
     public void testObtenerPorId(){
-        when(tipoEmpleadoRepository.findById(1)).thenReturn(Optional.of(createTipoEmpleado()));
+        TipoEmpleado tipoEsperado = createTipoEmpleado();
+        when(tipoEmpleadoRepository.findById(1)).thenReturn(Optional.of(tipoEsperado));
         TipoEmpleado tipo = tipoEmpleadoService.obtenerPorId(1);
         assertNotNull(tipo);
-        assertEquals("Vendedor", tipo.getPuesto());
+        assertEquals(tipoEsperado.getPuesto(), tipo.getPuesto());
     }
 
     @Test
@@ -51,21 +60,23 @@ public class TipoEmpleadoServiceTest {
         when(tipoEmpleadoRepository.save(tipo)).thenReturn(tipo);
         TipoEmpleado guardado = tipoEmpleadoService.guardarTipoEmpleado(tipo);
         assertNotNull(guardado);
-        assertEquals("Vendedor", guardado.getPuesto());
+        assertEquals(tipo.getPuesto(), guardado.getPuesto());
     }
 
     @Test
     public void testActualizarTipoEmpleado(){
         TipoEmpleado existente = createTipoEmpleado();
+        String nuevoPuesto = faker.job().title();
+
         TipoEmpleado patchData = new TipoEmpleado();
-        patchData.setPuesto("Supervisor");
+        patchData.setPuesto(nuevoPuesto);
 
         when(tipoEmpleadoRepository.findById(1)).thenReturn(Optional.of(existente));
         when(tipoEmpleadoRepository.save(existente)).thenReturn(existente);
 
         TipoEmpleado actualizado = tipoEmpleadoService.actualizarTipoEmpleado(1, patchData);
         assertNotNull(actualizado);
-        assertEquals("Supervisor", actualizado.getPuesto());
+        assertEquals(nuevoPuesto, actualizado.getPuesto());
     }
 
     @Test

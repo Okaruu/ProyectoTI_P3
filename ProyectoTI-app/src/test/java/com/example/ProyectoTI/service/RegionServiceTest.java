@@ -16,6 +16,8 @@ import com.example.ProyectoTI.DTO.RegionDTO;
 import com.example.ProyectoTI.model.Region;
 import com.example.ProyectoTI.repository.RegionRepository;
 
+import net.datafaker.Faker;
+
 @SpringBootTest
 public class RegionServiceTest {
 
@@ -25,25 +27,29 @@ public class RegionServiceTest {
     @MockitoBean
     private RegionRepository regionRepository;
 
+    private static final Faker faker = new Faker();
+
     private Region createRegion(){
-        return new Region(1, "Metropolitana");
+        return new Region(1, faker.address().state());
     }
 
     @Test
     public void testObtenerTodos(){
-        when(regionRepository.findAll()).thenReturn(List.of(createRegion()));
+        Region region = createRegion();
+        when(regionRepository.findAll()).thenReturn(List.of(region));
         List<RegionDTO> regiones = regionService.obtenerTodos();
         assertNotNull(regiones);
         assertEquals(1, regiones.size());
-        assertEquals("Metropolitana", regiones.get(0).getNombreRegion());
+        assertEquals(region.getNombreRegion(), regiones.get(0).getNombreRegion());
     }
 
     @Test
     public void testObtenerPorId(){
-        when(regionRepository.findById(1)).thenReturn(Optional.of(createRegion()));
+        Region regionEsperada = createRegion();
+        when(regionRepository.findById(1)).thenReturn(Optional.of(regionEsperada));
         Region region = regionService.obtenerPorId(1);
         assertNotNull(region);
-        assertEquals("Metropolitana", region.getNombreRegion());
+        assertEquals(regionEsperada.getNombreRegion(), region.getNombreRegion());
     }
 
     @Test
@@ -52,7 +58,7 @@ public class RegionServiceTest {
         when(regionRepository.save(region)).thenReturn(region);
         Region savedRegion = regionService.guardarRegion(region);
         assertNotNull(savedRegion);
-        assertEquals("Metropolitana", savedRegion.getNombreRegion());
+        assertEquals(region.getNombreRegion(), savedRegion.getNombreRegion());
     }
 
 }

@@ -16,6 +16,8 @@ import com.example.ProyectoTI.DTO.ComunaDTO;
 import com.example.ProyectoTI.model.Comuna;
 import com.example.ProyectoTI.repository.ComunaRepository;
 
+import net.datafaker.Faker;
+
 @SpringBootTest
 public class ComunaServiceTest {
 
@@ -25,25 +27,29 @@ public class ComunaServiceTest {
     @MockitoBean
     private ComunaRepository comunaRepository;
 
+    private static final Faker faker = new Faker();
+
     private Comuna createComuna(){
-        return new Comuna(1, "Providencia");
+        return new Comuna(1, faker.address().city());
     }
 
     @Test
     public void testObtenerTodos(){
-        when(comunaRepository.findAll()).thenReturn(List.of(createComuna()));
+        Comuna comuna = createComuna();
+        when(comunaRepository.findAll()).thenReturn(List.of(comuna));
         List<ComunaDTO> comunas = comunaService.obtenerTodos();
         assertNotNull(comunas);
         assertEquals(1, comunas.size());
-        assertEquals("Providencia", comunas.get(0).getNombreComuna());
+        assertEquals(comuna.getNombreComuna(), comunas.get(0).getNombreComuna());
     }
 
     @Test
     public void testObtenerPorId(){
-        when(comunaRepository.findById(1)).thenReturn(Optional.of(createComuna()));
-        ComunaDTO comuna = comunaService.obtenerPorId(1);
-        assertNotNull(comuna);
-        assertEquals("Providencia", comuna.getNombreComuna());
+        Comuna comuna = createComuna();
+        when(comunaRepository.findById(1)).thenReturn(Optional.of(comuna));
+        ComunaDTO comunaDTO = comunaService.obtenerPorId(1);
+        assertNotNull(comunaDTO);
+        assertEquals(comuna.getNombreComuna(), comunaDTO.getNombreComuna());
     }
 
     @Test
@@ -52,7 +58,7 @@ public class ComunaServiceTest {
         when(comunaRepository.save(comuna)).thenReturn(comuna);
         Comuna savedComuna = comunaService.guardarComuna(comuna);
         assertNotNull(savedComuna);
-        assertEquals("Providencia", savedComuna.getNombreComuna());
+        assertEquals(comuna.getNombreComuna(), savedComuna.getNombreComuna());
     }
 
 }

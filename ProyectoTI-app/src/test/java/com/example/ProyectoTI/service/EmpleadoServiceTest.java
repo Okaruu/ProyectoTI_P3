@@ -20,6 +20,8 @@ import com.example.ProyectoTI.DTO.EmpleadoDTO;
 import com.example.ProyectoTI.model.Empleado;
 import com.example.ProyectoTI.repository.EmpleadoRepository;
 
+import net.datafaker.Faker;
+
 @SpringBootTest
 public class EmpleadoServiceTest {
 
@@ -29,8 +31,15 @@ public class EmpleadoServiceTest {
     @MockitoBean
     private EmpleadoRepository empleadoRepository;
 
+    private static final Faker faker = new Faker();
+
     private Empleado createEmpleado(){
-        return new Empleado(1, null, null, "Juan Pérez", "Vendedor", "12.345.678-9", Date.valueOf("2024-01-15"));
+        return new Empleado(1, null, null,
+            faker.name().fullName(),
+            faker.job().title(),
+            "12.345.678-9",
+            Date.valueOf(faker.date().birthday().toLocalDateTime().toLocalDate())
+        );
     }
 
     @Test
@@ -43,10 +52,11 @@ public class EmpleadoServiceTest {
 
     @Test
     public void testObtenerEmpleadoPorId(){
-        when(empleadoRepository.findById(1)).thenReturn(Optional.of(createEmpleado()));
+        Empleado empleadoEsperado = createEmpleado();
+        when(empleadoRepository.findById(1)).thenReturn(Optional.of(empleadoEsperado));
         EmpleadoDTO empleado = empleadoService.obtenerEmpleadoPorId(1);
         assertNotNull(empleado);
-        assertEquals("Juan Pérez", empleado.getNombreEmpleado());
+        assertEquals(empleadoEsperado.getNombreEmpleado(), empleado.getNombreEmpleado());
     }
 
     @Test
@@ -55,21 +65,23 @@ public class EmpleadoServiceTest {
         when(empleadoRepository.save(empleado)).thenReturn(empleado);
         Empleado savedEmpleado = empleadoService.guardarEmpleado(empleado);
         assertNotNull(savedEmpleado);
-        assertEquals("Juan Pérez", savedEmpleado.getNombreEmpleado());
+        assertEquals(empleado.getNombreEmpleado(), savedEmpleado.getNombreEmpleado());
     }
 
     @Test
     public void testActualizarEmpleado(){
         Empleado existente = createEmpleado();
+        String nuevoPuesto = faker.job().position();
+
         Empleado patchData = new Empleado();
-        patchData.setPuestoEmpleado("Supervisor");
+        patchData.setPuestoEmpleado(nuevoPuesto);
 
         when(empleadoRepository.findById(1)).thenReturn(Optional.of(existente));
         when(empleadoRepository.save(existente)).thenReturn(existente);
 
         Empleado actualizado = empleadoService.actualizarEmpleado(1, patchData);
         assertNotNull(actualizado);
-        assertEquals("Supervisor", actualizado.getPuestoEmpleado());
+        assertEquals(nuevoPuesto, actualizado.getPuestoEmpleado());
     }
 
     @Test

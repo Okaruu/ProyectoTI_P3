@@ -22,6 +22,8 @@ import com.example.ProyectoTI.repository.DetalleVentaRepository;
 import com.example.ProyectoTI.repository.ProductoRepository;
 import com.example.ProyectoTI.repository.VentaRepository;
 
+import net.datafaker.Faker;
+
 @SpringBootTest
 public class DetalleVentasServiceTest {
 
@@ -37,16 +39,27 @@ public class DetalleVentasServiceTest {
     @MockitoBean
     private ProductoRepository productoRepository;
 
+    private static final Faker faker = new Faker();
+
     private Producto createProducto(){
-        return new Producto(1, "Mouse", "Mouse inalámbrico", 10, null, 8000.0, null, null);
+        return new Producto(1,
+            faker.commerce().productName(),
+            faker.lorem().sentence(),
+            10,
+            null,
+            faker.number().randomDouble(2, 1000, 20000),
+            null,
+            null
+        );
     }
 
     private DetalleVenta createDetalle(){
         DetalleVenta detalle = new DetalleVenta();
         detalle.setIdDetalleVenta(1);
-        detalle.setProducto(createProducto());
-        detalle.setCantidadProducto(2);
-        detalle.setPrecioUnitario(8000.0);
+        Producto producto = createProducto();
+        detalle.setProducto(producto);
+        detalle.setCantidadProducto(faker.number().numberBetween(1, 10));
+        detalle.setPrecioUnitario(producto.getPrecioProducto());
         return detalle;
     }
 
@@ -60,10 +73,11 @@ public class DetalleVentasServiceTest {
 
     @Test
     public void testObtenerPorId(){
-        when(detalleVentaRepository.findById(1)).thenReturn(Optional.of(createDetalle()));
+        DetalleVenta detalleEsperado = createDetalle();
+        when(detalleVentaRepository.findById(1)).thenReturn(Optional.of(detalleEsperado));
         DetalleVenta detalle = detalleVentasService.obtenerPorId(1);
         assertNotNull(detalle);
-        assertEquals(2, detalle.getCantidadProducto());
+        assertEquals(detalleEsperado.getCantidadProducto(), detalle.getCantidadProducto());
     }
 
     @Test
@@ -76,19 +90,28 @@ public class DetalleVentasServiceTest {
 
     @Test
     public void testGuardarDetalle(){
+        Producto producto = createProducto();
+        int cantidad = faker.number().numberBetween(1, 10);
+
         DetalleVentaDTO dto = new DetalleVentaDTO();
         dto.setIdVenta(1);
         dto.setIdProducto(1);
-        dto.setCantidadProducto(2);
-        dto.setPrecioUnitario(8000.0);
+        dto.setCantidadProducto(cantidad);
+        dto.setPrecioUnitario(producto.getPrecioProducto());
+
+        DetalleVenta detalleEsperado = new DetalleVenta();
+        detalleEsperado.setIdDetalleVenta(1);
+        detalleEsperado.setProducto(producto);
+        detalleEsperado.setCantidadProducto(cantidad);
+        detalleEsperado.setPrecioUnitario(producto.getPrecioProducto());
 
         when(ventaRepository.findById(1)).thenReturn(Optional.of(new Venta()));
-        when(productoRepository.findById(1)).thenReturn(Optional.of(createProducto()));
-        when(detalleVentaRepository.save(any(DetalleVenta.class))).thenReturn(createDetalle());
+        when(productoRepository.findById(1)).thenReturn(Optional.of(producto));
+        when(detalleVentaRepository.save(any(DetalleVenta.class))).thenReturn(detalleEsperado);
 
         DetalleVenta guardado = detalleVentasService.guardarDetalle(dto);
         assertNotNull(guardado);
-        assertEquals(2, guardado.getCantidadProducto());
+        assertEquals(cantidad, guardado.getCantidadProducto());
     }
 
     @Test
@@ -96,10 +119,11 @@ public class DetalleVentasServiceTest {
         Venta venta = new Venta();
         venta.setIdVenta(1);
         Producto producto = createProducto();
+        int cantidad = faker.number().numberBetween(1, 5); 
 
         DetalleVenta detalle = new DetalleVenta();
         detalle.setProducto(producto);
-        detalle.setCantidadProducto(2);
+        detalle.setCantidadProducto(cantidad);
 
         when(ventaRepository.findById(1)).thenReturn(Optional.of(venta));
         when(productoRepository.findById(1)).thenReturn(Optional.of(producto));
@@ -109,7 +133,7 @@ public class DetalleVentasServiceTest {
 
         Venta resultado = detalleVentasService.procesarVenta(1, List.of(detalle));
         assertNotNull(resultado);
-        assertEquals(16000.0, resultado.getPrecioFinal());
+        assertEquals(producto.getPrecioProducto() * cantidad, resultado.getPrecioFinal());
     }
 
     @Test

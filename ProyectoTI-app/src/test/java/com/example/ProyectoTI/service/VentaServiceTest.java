@@ -17,6 +17,8 @@ import com.example.ProyectoTI.DTO.VentaDTO;
 import com.example.ProyectoTI.model.Venta;
 import com.example.ProyectoTI.repository.VentaRepository;
 
+import net.datafaker.Faker;
+
 @SpringBootTest
 public class VentaServiceTest {
 
@@ -26,17 +28,24 @@ public class VentaServiceTest {
     @MockitoBean
     private VentaRepository ventaRepository;
 
+    private static final Faker faker = new Faker();
+
     private Venta createVenta(){
-        return new Venta(1, null, null, Date.valueOf("2026-06-22"), 15000.0, null);
+        return new Venta(1, null, null,
+            Date.valueOf(faker.date().past(30, java.util.concurrent.TimeUnit.DAYS).toLocalDateTime().toLocalDate()),
+            faker.number().randomDouble(2, 5000, 200000),
+            null
+        );
     }
 
     @Test
     public void testObtenerTodos(){
-        when(ventaRepository.findAll()).thenReturn(List.of(createVenta()));
+        Venta venta = createVenta();
+        when(ventaRepository.findAll()).thenReturn(List.of(venta));
         List<VentaDTO> ventas = ventaService.obtenerTodos();
         assertNotNull(ventas);
         assertEquals(1, ventas.size());
-        assertEquals(15000.0, ventas.get(0).getPrecioFinal());
+        assertEquals(venta.getPrecioFinal(), ventas.get(0).getPrecioFinal());
     }
 
     @Test
@@ -49,10 +58,11 @@ public class VentaServiceTest {
 
     @Test
     public void testObtenerPorId(){
-        when(ventaRepository.findById(1)).thenReturn(Optional.of(createVenta()));
+        Venta ventaEsperada = createVenta();
+        when(ventaRepository.findById(1)).thenReturn(Optional.of(ventaEsperada));
         VentaDTO venta = ventaService.obtenerPorId(1);
         assertNotNull(venta);
-        assertEquals(15000.0, venta.getPrecioFinal());
+        assertEquals(ventaEsperada.getPrecioFinal(), venta.getPrecioFinal());
     }
 
     @Test
@@ -61,9 +71,7 @@ public class VentaServiceTest {
         when(ventaRepository.save(venta)).thenReturn(venta);
         Venta guardada = ventaService.guardarVenta(venta);
         assertNotNull(guardada);
-        assertEquals(15000.0, guardada.getPrecioFinal());
+        assertEquals(venta.getPrecioFinal(), guardada.getPrecioFinal());
     }
 
 }
-
-

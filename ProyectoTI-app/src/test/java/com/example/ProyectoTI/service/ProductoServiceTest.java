@@ -21,6 +21,8 @@ import com.example.ProyectoTI.repository.CategoriaRepository;
 import com.example.ProyectoTI.repository.MarcaRepository;
 import com.example.ProyectoTI.repository.ProductoRepository;
 
+import net.datafaker.Faker;
+
 @SpringBootTest
 public class ProductoServiceTest {
 
@@ -36,67 +38,82 @@ public class ProductoServiceTest {
     @MockitoBean
     private MarcaRepository marcaRepository;
 
+    private static final Faker faker = new Faker();
+
     private Categoria createCategoria(){
-        return new Categoria(1, "Electrónica", "Productos electrónicos");
+        return new Categoria(1, faker.commerce().department(), faker.lorem().sentence());
     }
 
     private Marca createMarca(){
-        return new Marca(1, "Samsung");
+        return new Marca(1, faker.company().name());
     }
-
-    // ¡cuidado! convertirADTO() llama a producto.getCategoria() y .getMarca() sin null-check,
-    // así que en los tests siempre hay que pasarlos no nulos o lanzará NullPointerException
     private Producto createProducto(){
-        return new Producto(1, "Notebook", "Notebook 15 pulgadas", 10, null, 500000.0, createCategoria(), createMarca());
+        return new Producto(1,
+            faker.commerce().productName(),
+            faker.lorem().sentence(),
+            10,
+            null,
+            faker.number().randomDouble(2, 10000, 1000000),
+            createCategoria(),
+            createMarca()
+        );
     }
 
     @Test
     public void testObtenerTodos(){
-        when(productoRepository.findAll()).thenReturn(List.of(createProducto()));
+        Producto producto = createProducto();
+        when(productoRepository.findAll()).thenReturn(List.of(producto));
         List<ProductoDTO> productos = productoService.obtenerTodos();
         assertNotNull(productos);
         assertEquals(1, productos.size());
-        assertEquals("Notebook", productos.get(0).getNombreProducto());
+        assertEquals(producto.getNombreProducto(), productos.get(0).getNombreProducto());
     }
 
     @Test
     public void testObtenerPorId(){
-        when(productoRepository.findById(1)).thenReturn(Optional.of(createProducto()));
+        Producto productoEsperado = createProducto();
+        when(productoRepository.findById(1)).thenReturn(Optional.of(productoEsperado));
         ProductoDTO producto = productoService.obtenerPorId(1);
         assertNotNull(producto);
-        assertEquals("Notebook", producto.getNombreProducto());
+        assertEquals(productoEsperado.getNombreProducto(), producto.getNombreProducto());
     }
 
     @Test
     public void testGuardarProducto(){
+        String nombre = faker.commerce().productName();
+        Producto productoGuardado = createProducto();
+        productoGuardado.setNombreProducto(nombre);
+
         ProductoDTO dto = new ProductoDTO();
-        dto.setNombreProducto("Notebook");
-        dto.setDescripcionProducto("Notebook 15 pulgadas");
-        dto.setPrecioProducto(500000.0);
+        dto.setNombreProducto(nombre);
+        dto.setDescripcionProducto(faker.lorem().sentence());
+        dto.setPrecioProducto(productoGuardado.getPrecioProducto());
         dto.setIdCategoria(1);
         dto.setIdMarca(1);
 
         when(categoriaRepository.findById(1)).thenReturn(Optional.of(createCategoria()));
         when(marcaRepository.findById(1)).thenReturn(Optional.of(createMarca()));
-        when(productoRepository.save(any(Producto.class))).thenReturn(createProducto());
+        when(productoRepository.save(any(Producto.class))).thenReturn(productoGuardado);
 
         Producto guardado = productoService.guardarProducto(dto);
         assertNotNull(guardado);
-        assertEquals("Notebook", guardado.getNombreProducto());
+        assertEquals(nombre, guardado.getNombreProducto());
     }
 
     @Test
     public void testActualizarProducto(){
         Producto existente = createProducto();
+        String nuevoNombre = faker.commerce().productName();
+
         ProductoDTO dto = new ProductoDTO();
-        dto.setNombreProducto("Notebook Gamer");
+        dto.setNombreProducto(nuevoNombre);
 
         when(productoRepository.findById(1)).thenReturn(Optional.of(existente));
         when(productoRepository.save(existente)).thenReturn(existente);
 
         Producto actualizado = productoService.actualizarProducto(1, dto);
         assertNotNull(actualizado);
-        assertEquals("Notebook Gamer", actualizado.getNombreProducto());
+        assertEquals(nuevoNombre, actualizado.getNombreProducto());
     }
 
     @Test

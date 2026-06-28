@@ -19,6 +19,8 @@ import com.example.ProyectoTI.model.Sucursal;
 import com.example.ProyectoTI.repository.RegionRepository;
 import com.example.ProyectoTI.repository.SucursalRepository;
 
+import net.datafaker.Faker;
+
 @SpringBootTest
 public class SucursalServiceTest {
 
@@ -31,33 +33,43 @@ public class SucursalServiceTest {
     @MockitoBean
     private RegionRepository regionRepository;
 
+    private static final Faker faker = new Faker();
+
     private Region createRegion(){
-        return new Region(1, "Metropolitana");
+        return new Region(1, faker.address().state());
     }
 
     private Comuna createComuna(){
-        return new Comuna(1, "Providencia");
+        return new Comuna(1, faker.address().city());
     }
 
     private Sucursal createSucursal(){
-        return new Sucursal(1, "Av. Siempre Viva", "742", createComuna(), createRegion(), null);
+        return new Sucursal(1,
+            faker.address().streetName(),
+            faker.address().buildingNumber(),
+            createComuna(),
+            createRegion(),
+            null
+        );
     }
 
     @Test
     public void testObtenerTodos(){
-        when(sucursalRepository.findAll()).thenReturn(List.of(createSucursal()));
+        Sucursal sucursal = createSucursal();
+        when(sucursalRepository.findAll()).thenReturn(List.of(sucursal));
         List<SucursalDTO> sucursales = sucursalService.obtenerTodos();
         assertNotNull(sucursales);
         assertEquals(1, sucursales.size());
-        assertEquals("Av. Siempre Viva", sucursales.get(0).getCalle());
+        assertEquals(sucursal.getCalle(), sucursales.get(0).getCalle());
     }
 
     @Test
     public void testObtenerPorId(){
-        when(sucursalRepository.findById(1)).thenReturn(Optional.of(createSucursal()));
+        Sucursal sucursalEsperada = createSucursal();
+        when(sucursalRepository.findById(1)).thenReturn(Optional.of(sucursalEsperada));
         SucursalDTO sucursal = sucursalService.obtenerPorId(1);
         assertNotNull(sucursal);
-        assertEquals("742", sucursal.getNumeroCalle());
+        assertEquals(sucursalEsperada.getNumeroCalle(), sucursal.getNumeroCalle());
     }
 
     @Test
@@ -66,14 +78,16 @@ public class SucursalServiceTest {
         when(sucursalRepository.save(sucursal)).thenReturn(sucursal);
         Sucursal savedSucursal = sucursalService.guardarSucursal(sucursal);
         assertNotNull(savedSucursal);
-        assertEquals("Av. Siempre Viva", savedSucursal.getCalle());
+        assertEquals(sucursal.getCalle(), savedSucursal.getCalle());
     }
 
     @Test
     public void testActualizarSucursal(){
         Sucursal existente = createSucursal();
+        String nuevoNumero = faker.address().buildingNumber();
+
         SucursalDTO dto = new SucursalDTO();
-        dto.setNumeroCalle("999");
+        dto.setNumeroCalle(nuevoNumero);
         dto.setIdRegion(1);
 
         when(sucursalRepository.findById(1)).thenReturn(Optional.of(existente));
@@ -82,7 +96,7 @@ public class SucursalServiceTest {
 
         Sucursal actualizada = sucursalService.actualizarSucursal(1, dto);
         assertNotNull(actualizada);
-        assertEquals("999", actualizada.getNumeroCalle());
+        assertEquals(nuevoNumero, actualizada.getNumeroCalle());
     }
 
 }

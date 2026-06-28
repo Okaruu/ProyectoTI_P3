@@ -1,4 +1,4 @@
-package com.example.venta.controller;
+package com.example.venta.controller.v1;
 
 import java.util.List;
 
@@ -19,8 +19,11 @@ import com.example.venta.DTO.VentaDTO;
 import com.example.venta.model.Venta;
 import com.example.venta.service.VentaService;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 @RestController
 @RequestMapping("/api/v1/ventas")
+@Tag(name = "Ventas", description = "Operaciones relacionadas con las ventas")
 public class VentaController {
 
     @Autowired

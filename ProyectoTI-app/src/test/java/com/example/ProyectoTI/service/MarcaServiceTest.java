@@ -17,6 +17,8 @@ import com.example.ProyectoTI.model.Marca;
 import com.example.ProyectoTI.repository.MarcaRepository;
 import com.example.ProyectoTI.repository.ProductoRepository;
 
+import net.datafaker.Faker;
+
 @SpringBootTest
 public class MarcaServiceTest {
 
@@ -29,8 +31,10 @@ public class MarcaServiceTest {
     @MockitoBean
     private ProductoRepository productoRepository;
 
+    private static final Faker faker = new Faker();
+
     private Marca createMarca(){
-        return new Marca(1, "Samsung");
+        return new Marca(1, faker.company().name());
     }
 
     @Test
@@ -43,10 +47,11 @@ public class MarcaServiceTest {
 
     @Test
     public void testObtenerPorId(){
-        when(marcaRepository.findById(1)).thenReturn(Optional.of(createMarca()));
+        Marca marcaEsperada = createMarca();
+        when(marcaRepository.findById(1)).thenReturn(Optional.of(marcaEsperada));
         MarcaDTO marca = marcaService.obtenerPorId(1);
         assertNotNull(marca);
-        assertEquals("Samsung", marca.getNombreMarca());
+        assertEquals(marcaEsperada.getNombreMarca(), marca.getNombreMarca());
     }
 
     @Test
@@ -55,21 +60,23 @@ public class MarcaServiceTest {
         when(marcaRepository.save(marca)).thenReturn(marca);
         Marca savedMarca = marcaService.guardarMarca(marca);
         assertNotNull(savedMarca);
-        assertEquals("Samsung", savedMarca.getNombreMarca());
+        assertEquals(marca.getNombreMarca(), savedMarca.getNombreMarca());
     }
 
     @Test
     public void testActualizarMarca(){
         Marca existente = createMarca();
+        String nuevoNombre = faker.company().name();
+
         Marca patchData = new Marca();
-        patchData.setNombreMarca("LG");
+        patchData.setNombreMarca(nuevoNombre);
 
         when(marcaRepository.findById(1)).thenReturn(Optional.of(existente));
         when(marcaRepository.save(existente)).thenReturn(existente);
 
         Marca actualizada = marcaService.actualizarMarca(1, patchData);
         assertNotNull(actualizada);
-        assertEquals("LG", actualizada.getNombreMarca());
+        assertEquals(nuevoNombre, actualizada.getNombreMarca());
     }
 
     @Test

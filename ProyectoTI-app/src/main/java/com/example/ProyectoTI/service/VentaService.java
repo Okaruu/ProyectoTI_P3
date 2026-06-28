@@ -16,7 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 @Transactional
 @Slf4j
 public class VentaService {
-    // En este service faltan métodos ya que una venta no se puede modificar ni eliminar después de realizada
+    
     @Autowired
     private VentaRepository ventaRepository;
 
