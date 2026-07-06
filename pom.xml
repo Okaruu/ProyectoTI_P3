@@ -19,7 +19,7 @@
 
     <modules>
         <module>ProyectoTI-app</module>
-        <module>eureka</module>
+        <module>eureka/eureka</module>
         <module>gateway</module>
         <module>instrumento</module>
         <module>sucursal</module>

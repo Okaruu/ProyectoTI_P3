@@ -3,7 +3,7 @@ server:
 
 springdoc:
     api-docs:
-        path: /proyectoti/api-docs
+        path: /sucursal/api-docs
 
 eureka:
     client:

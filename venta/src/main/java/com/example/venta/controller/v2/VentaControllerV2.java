@@ -18,19 +18,19 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.ProyectoTI.DTO.ClienteDTO;
-import com.example.ProyectoTI.assemblers.ClienteModelAssembler;
-import com.example.ProyectoTI.model.Cliente;
-import com.example.ProyectoTI.service.ClienteService;
+import com.example.venta.DTO.VentaDTO;
+import com.example.venta.assembler.VentaModelAssembler;
+import com.example.venta.model.Venta;
+import com.example.venta.service.VentaService;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
-@RequestController("ventaControllerV2")
+@RestController("ventaControllerV2")
 @RequestMapping("/api/v2/ventas")
-@Tag(name = "ventas", description = "Operaciones relacionadas con las ventas.")
+@Tag(name = "Ventas", description = "Operaciones relacionadas con las ventas.")
 public class VentaControllerV2 {
 
     @Autowired
@@ -41,20 +41,18 @@ public class VentaControllerV2 {
 
     @GetMapping(produces = MediaTypes.HAL_JSON_VALUE)
     public ResponseEntity<CollectionModel<EntityModel<Venta>>> obtenerTodasLasVentas() {
-        List<EntityModel<Ventas>> ventas = ventaService.obtenerTodos().stream()
+        List<EntityModel<Venta>> ventas = ventaService.obtenerTodos().stream()
                 .map(assembler::toModel)
                 .collect(Collectors.toList());
         if (ventas.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(CollectionModel.of(
-                ventas,
-                linkTo(methodOn(ventaControllerV2.class).obtenerTodasLasVentas()).withSelfRel()
-        ));
+                ventas,linkTo(methodOn(ventaControllerV2.class).obtenerTodasLasVentas()).withSelfRel()));
     }
 
     @GetMapping(value = "/{idVenta}", produces = MediaTypes.HAL_JSON_VALUE)
-    public ResponseEntity<EntityModel<Venta>> obtenerClientePorId(@PathVariable Integer idVenta) {
+    public ResponseEntity<EntityModel<Venta>> obtenerVentaPorId(@PathVariable Integer idVenta) {
         try {
             Venta venta = ventaService.obtenerPorId(idVenta);
             return ResponseEntity.ok(assembler.toModel(venta));
@@ -64,19 +62,17 @@ public class VentaControllerV2 {
     }
 
     @PostMapping(produces = MediaTypes.HAL_JSON_VALUE)
-    public ResponseEntity<EntityModel<Venta>> agregarCliente(@RequestBody Venta venta) {
+    public ResponseEntity<EntityModel<Venta>> agregarVenta(@RequestBody VentaDTO ventaDTO) {
         try {
-            Venta ventaGuardada = ventaService.guardarCliente(venta);
-            return ResponseEntity
-                    .created(linkTo(methodOn(VentaControllerV2.class).obtenerVentaPorId(ventaGuardada.getIdVenta())).toUri())
-                    .body(assembler.toModel(ventaGuardada));
+            Venta ventaGuardada = ventaService.guardarVenta(ventaDTO);
+            return ResponseEntity.created(linkTo(methodOn(VentaControllerV2.class).obtenerVentaPorId(ventaGuardada.getIdVenta())).toUri()).body(assembler.toModel(ventaGuardada));
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
     }
 
     @PutMapping(value = "/{idVenta}", produces = MediaTypes.HAL_JSON_VALUE)
-    public ResponseEntity<EntityModel<Venta>> editarCliente(@PathVariable Integer idVenta, @RequestBody VentaDTO ventaDTO) {
+    public ResponseEntity<EntityModel<Venta>> editarVenta(@PathVariable Integer idVenta, @RequestBody VentaDTO ventaDTO) {
         try {
             Venta ventaEditada = ventaService.actualizarVenta(idVenta, ventaDTO);
             return ResponseEntity.ok(assembler.toModel(ventaEditada));
@@ -86,7 +82,7 @@ public class VentaControllerV2 {
     }
 
     @PatchMapping(value = "/{idVenta}", produces = MediaTypes.HAL_JSON_VALUE)
-    public ResponseEntity<EntityModel<Venta>> actualizarCliente(@PathVariable Integer idVenta, @RequestBody VentaDTO ventaDTO) {
+    public ResponseEntity<EntityModel<Venta>> actualizarVenta(@PathVariable Integer idVenta, @RequestBody VentaDTO ventaDTO) {
         try {
             Venta ventaActualizada = ventaService.actualizarVenta(idVenta, ventaDTO);
             return ResponseEntity.ok(assembler.toModel(ventaActualizada));
@@ -96,7 +92,7 @@ public class VentaControllerV2 {
     }
 
     @DeleteMapping("/{idVenta}")
-    public ResponseEntity<?> eliminarCliente(@PathVariable Integer idVenta) {
+    public ResponseEntity<?> eliminarVenta(@PathVariable Integer idVenta) {
         try {
             ventaService.eliminarVenta(idVenta);
             return ResponseEntity.noContent().build();

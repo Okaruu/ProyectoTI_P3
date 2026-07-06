@@ -6,12 +6,45 @@ spring:
         name: gateway
     cloud:
         gateway:
-            discovery:
-                locator:
-                    enabled: true
-                    lower-case-service-id: true
+            server:
+                webmvc:
+                    routes:
+                    - id: proyectoti-service
+                      uri: lb://proyectoti
+                      predicates:
+                    - Path=/api/v1/clientes/**, /api/v2/clientes/**, /api/v1/productos/**, /api/v2/productos/**, /api/v1/empleados/**, /api/v2/empleados/**, /api/v1/detalle-ventas/**, /api/v2/detalle-ventas/**, /proyectoti/api-docs/**
+
+                    - id: instrumento-service
+                      uri: lb://instrumento
+                      predicates:
+                    - Path=/api/v1/instrumentos/**, /api/v2/instrumentos/**, /instrumento/api-docs/**
+
+                    - id: sucursal-service
+                      uri: lb://sucursal
+                      predicates:
+                    - Path=/api/v1/sucursales/**, /sucursal/api-docs/**
+
+                    - id: venta-service
+                      uri: lb://venta
+                      predicates:
+                    - Path=/api/v1/ventas/**, /api/v2/ventas/**, /venta/api-docs/**
 
 eureka:
     client:
         service-url:
             defaultZone: http://localhost:8761/eureka/
+
+springdoc:
+    swagger-ui:
+        path: /swagger-ui/index.html
+        urls:
+        - name: Microservicio ProyectoTI (clientes, productos, empleados, detalle-ventas)
+          url: /proyectoti/api-docs
+        - name: Microservicio Instrumento
+          url: /instrumento/api-docs
+        - name: Microservicio Sucursal
+          url: /sucursal/api-docs
+        - name: Microservicio Venta
+          url: /venta/api-docs
+    api-docs:
+        enabled: true

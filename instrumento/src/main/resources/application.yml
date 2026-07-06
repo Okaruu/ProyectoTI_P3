@@ -3,7 +3,7 @@ server:
 
 springdoc:
     api-docs:
-        path: /proyectoti/api-docs
+        path: /instrumento/api-docs
 
 eureka:
     client:
@@ -60,7 +60,7 @@ spring:
             on-profile: prod
     datasource:
         username: root
-        url: jdbc:mysql://localhost:3306/sucursal?createDatabaseIfNotExist=
+        url: jdbc:mysql://localhost:3306/instrumento?createDatabaseIfNotExist=
         driverClassName: com.mysql.cj.jdbc.Driver
         password: ''
     jpa:
