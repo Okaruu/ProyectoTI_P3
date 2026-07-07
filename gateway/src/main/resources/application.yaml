@@ -12,22 +12,22 @@ spring:
                     - id: proyectoti-service
                       uri: lb://proyectoti
                       predicates:
-                    - Path=/api/v1/clientes/**, /api/v2/clientes/**, /api/v1/productos/**, /api/v2/productos/**, /api/v1/empleados/**, /api/v2/empleados/**, /api/v1/detalle-ventas/**, /api/v2/detalle-ventas/**, /proyectoti/api-docs/**
+                        - Path=/api/v1/clientes/**, /api/v2/clientes/**, /api/v1/productos/**, /api/v2/productos/**, /api/v1/empleados/**, /api/v2/empleados/**, /api/v1/detalle-ventas/**, /api/v2/detalle-ventas/**, /proyectoti/api-docs/**
 
                     - id: instrumento-service
                       uri: lb://instrumento
                       predicates:
-                    - Path=/api/v1/instrumentos/**, /api/v2/instrumentos/**, /instrumento/api-docs/**
+                        - Path=/api/v1/instrumentos/**, /api/v2/instrumentos/**, /instrumento/api-docs/**
 
                     - id: sucursal-service
                       uri: lb://sucursal
                       predicates:
-                    - Path=/api/v1/sucursales/**, /sucursal/api-docs/**
+                        - Path=/api/v1/sucursales/**, /sucursal/api-docs/**
 
                     - id: venta-service
                       uri: lb://venta
                       predicates:
-                    - Path=/api/v1/ventas/**, /api/v2/ventas/**, /venta/api-docs/**
+                        - Path=/api/v1/ventas/**, /api/v2/ventas/**, /venta/api-docs/**
 
 eureka:
     client:
