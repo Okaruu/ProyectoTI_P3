@@ -1,5 +1,3 @@
-CREATE DATABASE IF NOT EXISTS sucursal_db;
-USE sucursal_db;
 
 CREATE TABLE sucursal (
     id_sucursal INT AUTO_INCREMENT PRIMARY KEY,

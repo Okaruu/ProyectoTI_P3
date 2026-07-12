@@ -35,7 +35,7 @@ spring:
         password: ''
     jpa:
         hibernate:
-            ddl-auto: update
+            ddl-auto: validate
 
 ---
 
@@ -50,7 +50,7 @@ spring:
         password: ''
     jpa:
         hibernate:
-            ddl-auto: update
+            ddl-auto: validate
 
 ---
 

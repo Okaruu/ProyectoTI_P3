@@ -1,5 +1,3 @@
-CREATE DATABASE IF NOT EXISTS venta_db;
-USE venta_db;
 
 CREATE TABLE venta (
     id_venta INT AUTO_INCREMENT PRIMARY KEY,
