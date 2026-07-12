@@ -9,6 +9,8 @@ services:
       MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
     networks:
       - network-ProyectoTI
+    volumes:
+      - mariadb-data:/var/lib/mysql
     healthcheck:
       test: ["CMD", "mariadb-admin", "ping", "-h", "localhost", "-u", "root"]
       interval: 10s
@@ -16,7 +18,7 @@ services:
       retries: 20
 
   eureka-server:
-    build: ./eureka
+    build: ./eureka/eureka
     container_name: eureka-server
     ports:
       - "8761:8761"
@@ -106,3 +108,6 @@ services:
 networks:
   network-ProyectoTI:
     driver: bridge
+
+volumes:
+  mariadb-data:

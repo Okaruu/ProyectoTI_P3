@@ -30,7 +30,7 @@ spring:
             on-profile: dev
     datasource:
         username: root
-        url: jdbc:mysql://localhost:3306/instrumento?createDatabaseIfNotExist=true
+        url: jdbc:mysql://${DATABASE_HOST:localhost}:3306/instrumento?createDatabaseIfNotExist=true
         driverClassName: com.mysql.cj.jdbc.Driver
         password: ''
     jpa:
