@@ -21,6 +21,8 @@ Carlos Miranda
 - Creación de Controllers V2 en módulo Venta.
 - Creación de Assemblers en ProyectoTI-app e Instrumento.
 
+-----------------------------------------------------------------------------------------
+
 Examen Transversal Desarrollo Fullstack I
 
 Trabajo Realizado:
